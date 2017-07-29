@@ -6,6 +6,7 @@
 // Based on the original implementation by Ken Perlin
 // http://mrl.nyu.edu/~perlin/noise/
 //
+using System;
 using UnityEngine;
 
 namespace keijiro
@@ -16,18 +17,18 @@ namespace keijiro
 
         public static float Noise(float x)
         {
-            var X = Mathf.FloorToInt(x) & 0xff;
-            x -= Mathf.Floor(x);
+            var X = (int)Math.Floor(x) & 0xff;
+            x -= (int)Math.Floor(x);
             var u = Fade(x);
             return Lerp(u, Grad(perm[X], x), Grad(perm[X + 1], x - 1)) * 2;
         }
 
         public static float Noise(float x, float y)
         {
-            var X = Mathf.FloorToInt(x) & 0xff;
-            var Y = Mathf.FloorToInt(y) & 0xff;
-            x -= Mathf.Floor(x);
-            y -= Mathf.Floor(y);
+            var X = (int)Math.Floor(x) & 0xff;
+            var Y = (int)Math.Floor(y) & 0xff;
+            x -= (float)Math.Floor(x);
+            y -= (float)Math.Floor(y);
             var u = Fade(x);
             var v = Fade(y);
             var A = (perm[X] + Y) & 0xff;
@@ -36,19 +37,14 @@ namespace keijiro
                            Lerp(u, Grad(perm[A + 1], x, y - 1), Grad(perm[B + 1], x - 1, y - 1)));
         }
 
-        public static float Noise(Vector2 coord)
-        {
-            return Noise(coord.x, coord.y);
-        }
-
         public static float Noise(float x, float y, float z)
         {
-            var X = Mathf.FloorToInt(x) & 0xff;
-            var Y = Mathf.FloorToInt(y) & 0xff;
-            var Z = Mathf.FloorToInt(z) & 0xff;
-            x -= Mathf.Floor(x);
-            y -= Mathf.Floor(y);
-            z -= Mathf.Floor(z);
+            var X = (int)Math.Floor(x) & 0xff;
+            var Y = (int)Math.Floor(y) & 0xff;
+            var Z = (int)Math.Floor(z) & 0xff;
+            x -= (float)Math.Floor(x);
+            y -= (float)Math.Floor(y);
+            z -= (float)Math.Floor(z);
             var u = Fade(x);
             var v = Fade(y);
             var w = Fade(z);
@@ -62,11 +58,6 @@ namespace keijiro
                                    Lerp(u, Grad(perm[AB], x, y - 1, z), Grad(perm[BB], x - 1, y - 1, z))),
                            Lerp(v, Lerp(u, Grad(perm[AA + 1], x, y, z - 1), Grad(perm[BA + 1], x - 1, y, z - 1)),
                                    Lerp(u, Grad(perm[AB + 1], x, y - 1, z - 1), Grad(perm[BB + 1], x - 1, y - 1, z - 1))));
-        }
-
-        public static float Noise(Vector3 coord)
-        {
-            return Noise(coord.x, coord.y, coord.z);
         }
 
         #endregion
@@ -86,32 +77,15 @@ namespace keijiro
             return f;
         }
 
-        public static float Fbm(Vector2 coord, int octave)
-        {
-            var f = 0.0f;
-            var w = 0.5f;
-            for (var i = 0; i < octave; i++)
-            {
-                f += w * Noise(coord);
-                coord *= 2.0f;
-                w *= 0.5f;
-            }
-            return f;
-        }
-
         public static float Fbm(float x, float y, int octave)
         {
-            return Fbm(new Vector2(x, y), octave);
-        }
-
-        public static float Fbm(Vector3 coord, int octave)
-        {
             var f = 0.0f;
             var w = 0.5f;
             for (var i = 0; i < octave; i++)
             {
-                f += w * Noise(coord);
-                coord *= 2.0f;
+                f += w * Noise(x, y);
+                x *= 2.0f;
+                y *= 2.0f;
                 w *= 0.5f;
             }
             return f;
@@ -119,7 +93,17 @@ namespace keijiro
 
         public static float Fbm(float x, float y, float z, int octave)
         {
-            return Fbm(new Vector3(x, y, z), octave);
+            var f = 0.0f;
+            var w = 0.5f;
+            for (var i = 0; i < octave; i++)
+            {
+                f += w * Noise(x, y, z);
+                x *= 2.0f;
+                y *= 2.0f;
+                z *= 2.0f;
+                w *= 0.5f;
+            }
+            return f;
         }
 
         #endregion
