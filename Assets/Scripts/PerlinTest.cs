@@ -158,9 +158,9 @@ public class PerlinTest : MonoBehaviour
     // false is failed
     bool CheckForLimit(float[,] world)
     {
-        for (int y = 0; y < worldHeight - 8; y += 8)
+        for (int y = 0; y < worldHeight - 1; y++)
         {
-            for (int x = 0; x < worldsWidth - 8; x += 8)
+            for (int x = 0; x < worldsWidth - 1; x++)
             {
 
                 if (world[x, y] - world[x, y + 1] > chunkHeightLimit)
