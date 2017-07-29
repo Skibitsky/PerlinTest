@@ -17,7 +17,9 @@ public class PerlinTest : MonoBehaviour
     [SerializeField]
     float scale = 20;
     [SerializeField]
-    int chunkHeightLimit = 4;
+    float chunkHeightLimit = 4;
+    [SerializeField]
+    int octavesCount = 5;
     [SerializeField]
     List<Renderer> textureViewers = new List<Renderer>();
     [SerializeField]
@@ -75,11 +77,15 @@ public class PerlinTest : MonoBehaviour
         foreach (var seed in Seeds)
         {
             var world = new float[worldsWidth, worldHeight];
+
             for (int y = 0; y < worldHeight; y++)
             {
                 for (int x = 0; x < worldsWidth; x++)
                 {
-                    world[x, y] = generatorWithSeed(((float)x) / worldsWidth * scale, ((float)y) / worldHeight * scale, seed) * amplitude;
+                    for (int i = 1; i < octavesCount + 1; i++)
+                        world[x, y] += generatorWithSeed(((float)x) / worldsWidth * scale/2*i, ((float)y) / worldHeight * scale/2*i, seed) * amplitude;
+
+                    world[x, y] /= octavesCount;
                 }
             }
             result += string.Format("\nSeed: <b>{0}</b>  Result: <b>{1}</b>", seed, CheckForLimit(world).ToString());
@@ -101,11 +107,15 @@ public class PerlinTest : MonoBehaviour
         foreach (var seed in Seeds)
         {
             var world = new float[worldsWidth, worldHeight];
+
             for (int y = 0; y < worldHeight; y++)
             {
                 for (int x = 0; x < worldsWidth; x++)
                 {
-                    world[x, y] = generator(((float)x + seed) / worldsWidth * scale, ((float)y + seed) / worldHeight * scale) * amplitude;
+                    for(int i = 1; i < octavesCount+1; i++)
+                        world[x, y] += generator(((float)x + seed) / worldsWidth * scale/2*i, ((float)y + seed) / worldHeight * scale/2*i) * amplitude;
+
+                    world[x, y] /= octavesCount;
                 }
             }
             result += string.Format("\nSeed: <b>{0}</b>  Result: <b>{1}</b>", seed, CheckForLimit(world).ToString());
@@ -130,7 +140,7 @@ public class PerlinTest : MonoBehaviour
         {
             for (int y = 0; y < worldHeight; y++)
             {
-                var height = Mathf.Round(world[x, y] * 2) / 2; // position Y in world space. We use 0.5 step
+                var height = Round(world[x, y]);
                 var go = Instantiate(cubePrefab, new Vector3(x + worldsWidth * cubeWorldsCount + 10, height, y + worldHeight * cubeWorldsCount + 10), Quaternion.identity);
                 go.transform.SetParent(parent);                
             }
@@ -163,15 +173,20 @@ public class PerlinTest : MonoBehaviour
             for (int x = 0; x < worldsWidth - 1; x++)
             {
 
-                if (world[x, y] - world[x, y + 1] > chunkHeightLimit)
+                if (Round(world[x, y]) - Round(world[x, y + 1]) > chunkHeightLimit)
                     return false;
-                if (world[x, y] - world[x + 1, y] > chunkHeightLimit)
+                if (Round(world[x, y]) - Round(world[x + 1, y]) > chunkHeightLimit)
                     return false;
-                if (world[x, y] - world[x + 1, y + 1] > chunkHeightLimit)
+                if (Round(world[x, y]) - Round(world[x + 1, y + 1]) > chunkHeightLimit)
                     return false;
             }
         }
 
         return true;
+    }
+
+    float Round(float value)
+    {
+        return Mathf.Round(value * 2) / 2; // I need 0.5 height step for my chunk prefabs. You can round it as you like
     }
 }
