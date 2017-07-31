@@ -57,7 +57,7 @@ public class PerlinTest : MonoBehaviour
                 Simplex.Noise.Seed = seed;
                 return Simplex.Noise.CalcPixel2D((int)x, (int)y, scale) / 255;
             },
-            textureViewers[3], true);
+            textureViewers[3]);
     }
 
     public void GenerateSeeds()
@@ -134,14 +134,16 @@ public class PerlinTest : MonoBehaviour
     {
         Debug.LogFormat("Started generating cube world for <b>{0}</b>....", name);
         var parent = new GameObject(name).transform;
-        parent.position = new Vector3(worldsWidth * cubeWorldsCount + 10, 0, worldHeight * cubeWorldsCount + 10);
+        parent.position = new Vector3(worldsWidth * cubePrefab.transform.localScale.x * cubeWorldsCount + 10 * cubePrefab.transform.localScale.x, 0, worldHeight * cubePrefab.transform.localScale.y *cubeWorldsCount + 10 * cubePrefab.transform.localScale.y);
         cubeWorlds.Add(parent.gameObject);
         for (int x = 0; x < worldsWidth; x++)
         {
             for (int y = 0; y < worldHeight; y++)
             {
                 var height = Round(world[x, y]);
-                var go = Instantiate(cubePrefab, new Vector3(x + worldsWidth * cubeWorldsCount + 10, height, y + worldHeight * cubeWorldsCount + 10), Quaternion.identity);
+                var go = Instantiate(cubePrefab, 
+                    new Vector3(x * cubePrefab.transform.localScale.x + worldsWidth * cubeWorldsCount + 10 * cubePrefab.transform.localScale.x, height * cubePrefab.transform.localScale.y, y * cubePrefab.transform.localScale.z + worldHeight * cubeWorldsCount + 10 * cubePrefab.transform.localScale.z),
+                    Quaternion.identity);
                 go.transform.SetParent(parent);                
             }
         }
